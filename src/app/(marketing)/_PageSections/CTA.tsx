@@ -1,6 +1,7 @@
 import { buttonVariants } from '@/components/ui/Button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils/helpers';
+import { HomeIcon } from '@radix-ui/react-icons'; // Import your app icons
 
 export default function CTA() {
   return (
@@ -16,11 +17,25 @@ export default function CTA() {
             Elevate your business operations with our tailored CRM solutions for Real Estate and Insurance agencies. Manage leads, automate workflows, and gain insights to drive your success.
           </p>
           <div className="mt-10 space-x-4">
-            <Link href="/real-estate-crm" className={cn(buttonVariants({ size: 'lg' }))}>
-              Explore Real Estate CRM
+            {/* App Icons as Download Links */}
+            <Link
+              href="https://www.dropbox.com/scl/fi/2er0axcttsrxofdb5xev2/app-release.apk?rlkey=mcta0p3xqrcrzs02ol040e2tp&st=m24nlckc&dl=1" // Replace with your actual Google Drive link for Real Estate CRM APK
+              className={cn(buttonVariants({ size: 'lg' }))}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <HomeIcon className="w-6 h-6 mr-2" aria-hidden="true" />
+              {/* You can use the icon name as the label or any appropriate text */}
+              Real Estate CRM
             </Link>
-            <Link href="/insurance-crm" className={cn(buttonVariants({ size: 'lg' }))}>
-              Explore Insurance CRM
+            <Link
+              href="https://www.dropbox.com/scl/fi/2er0axcttsrxofdb5xev2/app-release.apk?rlkey=mcta0p3xqrcrzs02ol040e2tp&st=m24nlckc&dl=1" // Replace with your actual Google Drive link for Insurance CRM APK
+              className={cn(buttonVariants({ size: 'lg' }))}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <HomeIcon className="w-6 h-6 mr-2" aria-hidden="true" />
+              Insurance CRM
             </Link>
             <Link href="/pricing" className={cn(buttonVariants({ size: 'lg' }))}>
               See Pricing
