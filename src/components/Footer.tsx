@@ -121,15 +121,7 @@ export default function Footer() {
                     </Link>
                     
                   </li>
-                  <li>
-                    <Link
-                      href="/delivery-of-service"
-                      className="text-sm leading-6 text-gray-300 hover:text-white"
-                    >
-                      Delivery of Service
-                    </Link>
-                    
-                  </li>
+
                 </ul>
               </div>
             </div>
