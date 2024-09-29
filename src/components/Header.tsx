@@ -7,6 +7,7 @@ import { MainLogoText } from '@/components/MainLogo';
 import { ThemeDropDownMenu } from './ThemeDropdown';
 import { SupabaseSession } from '@/lib/API/Services/supabase/user';
 
+
 export const Header = async () => {
   const { routes } = config;
   const { data } = await SupabaseSession();
@@ -15,10 +16,10 @@ export const Header = async () => {
     <header>
       <div className="flex items-center justify-between p-6">
         <MainLogoText />
-        <Nav items={routes}/>
         <div className="flex justify-center items-center">
+        <Nav items={routes}/>
           <ThemeDropDownMenu />
-          <nav>
+          {/* <nav>
             {data?.session && (
               <Link
               href="/dashboard/main"
@@ -34,7 +35,7 @@ export const Header = async () => {
               >
               Login
               </Link>)}
-          </nav>
+          </nav> */}
         </div>
       </div>
     </header>
