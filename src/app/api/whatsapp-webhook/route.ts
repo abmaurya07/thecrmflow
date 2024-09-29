@@ -1,26 +1,27 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Verification function to handle the webhook verification process
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'GET') {
-    // When Meta sends a GET request to verify the webhook, respond with the challenge token
-    const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
-    const hubToken = req.query['hub.verify_token'];
-    const hubChallenge = req.query['hub.challenge'];
+const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
 
-    if (hubToken === verifyToken) {
-      return res.status(200).send(hubChallenge);
-    } else {
-      return res.status(403).json({ message: 'Forbidden - Invalid Verify Token' });
-    }
+// Handle GET request for webhook verification
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const hubToken = searchParams.get('hub.verify_token');
+  const hubChallenge = searchParams.get('hub.challenge');
+
+  if (hubToken === verifyToken) {
+    return new Response(hubChallenge, { status: 200 });
+  } else {
+    return new Response(JSON.stringify({ message: 'Forbidden - Invalid Verify Token' }), { status: 403 });
   }
+}
 
-  // Handle the webhook POST request (the same as the previous version)
-  if (req.method === 'POST') {
-    const message = req.body;
-    // Process the incoming WhatsApp message here...
-    return res.status(200).json({ status: 'success' });
-  }
+// Handle POST request for receiving webhook events
+export async function POST(req: NextRequest) {
+  const body = await req.json();  // Parse incoming request body (likely JSON)
+  
+  // Process the incoming WhatsApp message here...
+  console.log("Webhook event received:", body);
 
-  return res.status(405).json({ message: 'Method Not Allowed' });
+  // Respond with 200 OK
+  return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
 }
