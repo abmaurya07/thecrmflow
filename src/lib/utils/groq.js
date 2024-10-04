@@ -1,11 +1,13 @@
 import Groq from "groq-sdk";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_SECRET_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function main(userInput) {
   const chatCompletion = await getGroqChatCompletion(userInput);
   // Print the completion returned by the LLM.
   console.log(chatCompletion.choices[0]?.message?.content || "");
+
+  return chatCompletion.choices[0]?.message?.content || "AI ERROR";
 }
 
 export async function getGroqChatCompletion(userInput) {

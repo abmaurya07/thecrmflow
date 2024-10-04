@@ -66,7 +66,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           const AIResponse = await AIHelper(userMessage)
           console.log('AI response:', AIResponse);
 // Send a response to the user
-await sendWhatsAppMessage(message.from, 'Thank you for your message! Once Processing is done will Notify you.');
+await sendWhatsAppMessage(message.from, `Thank you for your message! this is AI Response: ${AIResponse}`);
         } catch (err){
 // Send a response to the user
 await sendWhatsAppMessage(message.from, 'Some Error Happened. Please Try Again.');
