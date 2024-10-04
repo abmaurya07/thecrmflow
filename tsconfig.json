@@ -29,6 +29,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/app/(auth)/protected" 
-  ],
+],
   "exclude": ["node_modules"]
 }

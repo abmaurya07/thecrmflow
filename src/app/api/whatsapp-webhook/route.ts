@@ -1,7 +1,7 @@
 import { downloadMedia, sendWhatsAppMessage } from '@/lib/utils/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 import { main as AIHelper } from '@/lib/utils/groq';
-import { performOCR } from '@/lib/utils/performOcr';  // Assuming this function handles OCR extraction from media
+import extractText from '@/lib/utils/performOcr';  // Assuming this function handles OCR extraction from media
 
 const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN as string;
 
@@ -73,11 +73,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           if (mediaId) {
             try {
               // Download media from WhatsApp
-              const fileUrl = await downloadMedia(mediaId);  
-              console.log('Media URL:', fileUrl);
+              const mediaBuffer = await downloadMedia(mediaId);  
+              console.log('Media buffer:', mediaBuffer);
+
+              // Determine media type
+              const mediaType = message.type === 'image' ? 'image' : 'document'; // Set the media type
 
               // Perform OCR on the downloaded media
-              const ocrResult = await performOCR(fileUrl);
+              const ocrResult = await extractText(mediaBuffer, mediaType);
               console.log('OCR Result:', ocrResult);
 
               // Generate AI Response for media content

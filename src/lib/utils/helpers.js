@@ -33,20 +33,36 @@ async function sendWhatsAppMessage(to, message) {
 
 // Function to download media file from WhatsApp using the media ID
 async function downloadMedia(mediaId) {
-  const mediaUrl = `https://graph.facebook.com/v17.0/${mediaId}`;
+  const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN;
   
-  const mediaResponse = await fetch(mediaUrl, {
+  // First, get the media URL
+  const mediaUrlEndpoint = `https://graph.facebook.com/v17.0/${mediaId}`;
+  const mediaUrlResponse = await fetch(mediaUrlEndpoint, {
     headers: {
-      Authorization: `Bearer ${whatsappToken}`
+      'Authorization': `Bearer ${whatsappToken}`
     }
   });
   
-  if (!mediaResponse.ok) {
-    throw new Error('Failed to download media');
+  if (!mediaUrlResponse.ok) {
+    throw new Error(`Failed to get media URL: ${mediaUrlResponse.statusText}`);
   }
-
-  const mediaData = await mediaResponse.json();
-  return mediaData.url;  // Return the URL to download the file
+  
+  const mediaUrlData = await mediaUrlResponse.json();
+  
+  // Then, download the actual media using the URL
+  const mediaDownloadResponse = await fetch(mediaUrlData.url, {
+    headers: {
+      'Authorization': `Bearer ${whatsappToken}`
+    }
+  });
+  
+  if (!mediaDownloadResponse.ok) {
+    throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
+  }
+  
+  // Convert the response to a buffer
+  const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
+  return Buffer.from(arrayBuffer);
 }
 
 // Function to process the file (e.g., extract data with Llama AI)
