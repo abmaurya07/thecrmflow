@@ -38,7 +38,7 @@ async function extractText(mediaBuffer, mediaType) {
     switch (mediaType) {
         case 'pdf':
             return await extractTextFromPDF(mediaBuffer);
-        case 'ppt':
+        case 'ppt' || 'pptx':
             return await extractTextFromPPT(mediaBuffer);
         case 'image':
             return await extractTextFromImage(mediaBuffer);

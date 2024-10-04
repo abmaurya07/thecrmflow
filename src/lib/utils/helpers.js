@@ -33,7 +33,6 @@ async function sendWhatsAppMessage(to, message) {
 
 // Function to download media file from WhatsApp using the media ID
 async function downloadMedia(mediaId) {
-  const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN;
   
   // First, get the media URL
   const mediaUrlEndpoint = `https://graph.facebook.com/v17.0/${mediaId}`;
