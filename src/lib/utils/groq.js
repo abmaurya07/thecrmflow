@@ -14,10 +14,21 @@ export async function getGroqChatCompletion(userInput) {
   return groq.chat.completions.create({
     messages: [
       {
+        role: "system",
+        content: `You are a business assistant AI tasked with extracting essential contact and company details from pitch decks. Your job is to accurately identify the following details:
+        - Business/Company Name
+        - Contact Person's Name
+        - Email Address
+        - Phone Number
+        
+        The information provided may come from documents, images, or text. Extract the relevant details with precision.`,
+      },
+      {
         role: "user",
-        content: `Extract the name of a person, comany name, phone number and email from following content: ${userInput}. `,
+        content: `Extract the name of a person, company name, phone number, and email from the following content: ${userInput}.`,
       },
     ],
     model: "llama3-8b-8192",
   });
 }
+
