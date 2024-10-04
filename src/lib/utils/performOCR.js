@@ -35,6 +35,7 @@ async function extractTextFromImage(imageBuffer) {
 }
 
 async function extractText(mediaBuffer, mediaType) {
+    console.log('mediaType', mediaType)
     switch (mediaType) {
         case 'pdf':
             return await extractTextFromPDF(mediaBuffer);
