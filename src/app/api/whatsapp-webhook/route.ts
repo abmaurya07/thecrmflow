@@ -68,9 +68,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
               console.log('Media buffer:', mediaBuffer);
 
-              // Determine media type
-              console.log('message.type', message.type)
-              const mediaType = message.type === 'image' ? 'image' : 'document'; // Set the media type
+               // Get the mime type for the document
+               console.log('message.document', message.document);
+               const mimeType = message.document?.mime_type;
+               let mediaType: string;
+ 
+               // Determine media type based on mime type
+               if (mimeType === 'application/pdf') {
+                 mediaType = 'pdf';
+               } else if (mimeType === 'application/vnd.ms-powerpoint' || mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+                 mediaType = 'ppt';
+               } else {
+                 mediaType = 'unknown'; // Handle unknown types if necessary
+               }
 
               // Perform OCR on the downloaded media
               const ocrResult = await extractText(mediaBuffer, mediaType);
