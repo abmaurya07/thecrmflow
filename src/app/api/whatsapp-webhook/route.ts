@@ -1,6 +1,8 @@
 import { downloadMedia, processFileWithLlamaAI, sendWhatsAppMessage } from '@/lib/utils/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 
+import {main as AIHelper} from '@/lib/utils/groq'
+
 const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN as string;
 
 
@@ -57,9 +59,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       if (message.type === 'text' && message.text) {
         const userMessage = message.text.body;
         console.log('Text message received:', userMessage);
+
+        try {
+          // genearate API Response
+
+          const AIResponse = await AIHelper(userMessage)
+          console.log('AI response:', AIResponse);
+// Send a response to the user
+await sendWhatsAppMessage(message.from, 'Thank you for your message! Once Processing is done will Notify you.');
+        } catch (err){
+// Send a response to the user
+await sendWhatsAppMessage(message.from, 'Some Error Happened. Please Try Again.');
+        }
         
-        // Send a response to the user
-        await sendWhatsAppMessage(message.from, 'Thank you for your message! Once Processing is done will Notify you.');
+        
       }
 
       // Handle media (image, document, etc.)
