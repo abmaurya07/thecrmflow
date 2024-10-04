@@ -1,7 +1,7 @@
 import { downloadMedia, sendWhatsAppMessage } from '@/lib/utils/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 import { main as AIHelper } from '@/lib/utils/groq';
-import extractText from '@/lib/utils/performOcr';  // Assuming this function handles OCR extraction from media
+import extractText from '@/lib/utils/performOCR';  // Assuming this function handles OCR extraction from media
 
 const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN as string;
 
