@@ -5,24 +5,11 @@ import extractText from '@/lib/utils/performOcr';  // Assuming this function han
 
 const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN as string;
 
-// Define types for the WhatsApp webhook body
-interface WhatsAppMessage {
-  from: string;
-  type: string;
-  text?: { body: string };
-  image?: { id: string };
-  document?: { id: string };
-}
 
-interface WhatsAppChange {
-  value: {
-    messages?: WhatsAppMessage[];
-  };
-}
 
-interface WhatsAppWebhookBody {
-  entry: { changes: WhatsAppChange[] }[];
-}
+
+
+
 
 // Handle GET request for webhook verification
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -39,7 +26,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
 // Handle POST request for receiving webhook events (messages, media, etc.)
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const body: WhatsAppWebhookBody = await req.json();  // Parse incoming request body
+  const body = await req.json();  // Parse incoming request body
 
   // Log the webhook event for debugging
   console.log("Webhook event received:", body);
@@ -69,11 +56,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         // Handle media (image, document, etc.)
         if (message.type === 'image' || message.type === 'document') {
           const mediaId = message[message.type]?.id;  // Get media ID
+
+          console.log('Media ID:', mediaId);
           
           if (mediaId) {
             try {
               // Download media from WhatsApp
+              console.log('run before download media function')
               const mediaBuffer = await downloadMedia(mediaId);  
+              console.log('run after download media function')
+
               console.log('Media buffer:', mediaBuffer);
 
               // Determine media type
