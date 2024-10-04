@@ -59,7 +59,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         console.log('Text message received:', userMessage);
         
         // Send a response to the user
-        await sendWhatsAppMessage(message.from, `teri maki chut`);
+        await sendWhatsAppMessage(message.from, 'Thank you for your message! Once Processing is done will Notify you.');
       }
 
       // Handle media (image, document, etc.)
