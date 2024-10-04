@@ -69,6 +69,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               console.log('Media buffer:', mediaBuffer);
 
               // Determine media type
+              console.log('message.type', message.type)
               const mediaType = message.type === 'image' ? 'image' : 'document'; // Set the media type
 
               // Perform OCR on the downloaded media
