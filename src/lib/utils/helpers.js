@@ -64,25 +64,14 @@ async function downloadMedia(mediaId, mediaType) {
   
 console.log('mediaDownloadResponse', mediaDownloadResponse)
 
-await downloadMedia(mediaDownloadResponse)
+const buffer = await response.arrayBuffer();
+require('fs').writeFileSync('downloaded_media', Buffer.from(buffer));
 
 return 'Thank You!'
 
 
 }
 
-
-async function downloadMedia(response) {
-  try {
-
-
-      const buffer = await response.arrayBuffer();
-      require('fs').writeFileSync('downloaded_media', Buffer.from(buffer));
-      
-  } catch (error) {
-      console.error('Error downloading media:', error);
-  }
-}
 
 
 
