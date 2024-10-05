@@ -85,11 +85,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               
 
               // Perform OCR on the downloaded media
-              const ocrResult = await extractText(mediaBuffer, mediaType);
-              console.log('OCR Result:', ocrResult);
-
+              // const ocrResult = await extractText(mediaBuffer, mediaType);
+              // console.log('OCR Result:', ocrResult);
+              let AIResponse : string
+              if(mediaType === 'pdf'){
+                
+                 AIResponse = await AIHelper(mediaBuffer);
+              }
               // Generate AI Response for media content
-              const AIResponse = await AIHelper(ocrResult);
               console.log('AI response from OCR content:', AIResponse);
 
               // Send a response to the user
