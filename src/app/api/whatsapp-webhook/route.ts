@@ -61,26 +61,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           
           if (mediaId) {
             try {
+
+              const mimeType = message.document?.mime_type;
+              let mediaType: string;
+
+              // Determine media type based on mime type
+              if (mimeType === 'application/pdf') {
+                mediaType = 'pdf';
+              } else if (mimeType === 'application/vnd.ms-powerpoint' || mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+                mediaType = 'ppt';
+              } else {
+                mediaType = 'unknown'; // Handle unknown types if necessary
+              }
               // Download media from WhatsApp
               console.log('run before download media function')
-              const mediaBuffer = await downloadMedia(mediaId);  
+              const mediaBuffer = await downloadMedia(mediaId, mediaType);  
               console.log('run after download media function')
 
               console.log('Media buffer:', mediaBuffer);
 
                // Get the mime type for the document
                console.log('message.document', message.document);
-               const mimeType = message.document?.mime_type;
-               let mediaType: string;
- 
-               // Determine media type based on mime type
-               if (mimeType === 'application/pdf') {
-                 mediaType = 'pdf';
-               } else if (mimeType === 'application/vnd.ms-powerpoint' || mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-                 mediaType = 'ppt';
-               } else {
-                 mediaType = 'unknown'; // Handle unknown types if necessary
-               }
+              
 
               // Perform OCR on the downloaded media
               const ocrResult = await extractText(mediaBuffer, mediaType);

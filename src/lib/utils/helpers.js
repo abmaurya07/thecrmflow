@@ -32,7 +32,7 @@ async function sendWhatsAppMessage(to, message) {
 }
 
 // Function to download media file from WhatsApp using the media ID
-async function downloadMedia(mediaId) {
+async function downloadMedia(mediaId, mediaType) {
   
   // First, get the media URL
   const mediaUrlEndpoint = `https://graph.facebook.com/v17.0/${mediaId}`;
@@ -59,9 +59,15 @@ async function downloadMedia(mediaId) {
     throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
   }
   
+
+  if(mediaType === 'pdf'){
+    const text = await mediaDownloadResponse.text();
+    return text;
+  }
+
   // Convert the response to a buffer
-  const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  // const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
+  // return Buffer.from(arrayBuffer);
 }
 
 // Function to process the file (e.g., extract data with Llama AI)
