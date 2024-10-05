@@ -2,7 +2,6 @@
 
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-const pdf = require('pdf-parse')
 // import pptxExtract from 'pptx-extract'; // You'll need to install this package
 
 export function cn(...inputs) {
@@ -93,12 +92,20 @@ async function processFileWithLlamaAI(fileUrl) {
 
 // Function to extract text from PDF
 async function extractTextFromPDF(pdfBuffer) {
-  try {
-    const data = await pdf(pdfBuffer);
-    return data.text;
-  } catch (error) {
-    console.error('Error extracting text from PDF:', error);
-    throw error;
+  if (typeof window === 'undefined') {
+    // Server-side code
+    const pdf = await import('pdf-parse');
+    try {
+      const data = await pdf.default(pdfBuffer);
+      return data.text;
+    } catch (error) {
+      console.error('Error extracting text from PDF:', error);
+      throw error;
+    }
+  } else {
+    // Client-side code
+    console.error('PDF extraction is not supported in the browser');
+    return 'PDF extraction is not supported in the browser';
   }
 }
 
