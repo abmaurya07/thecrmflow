@@ -55,7 +55,8 @@ async function downloadMedia(mediaId, mediaType) {
   // Then, download the actual media using the URL
   const mediaDownloadResponse = await fetch(mediaUrlData.url, {
     headers: {
-      'Authorization': `Bearer ${whatsappToken}`
+      'Authorization': `Bearer ${whatsappToken}`,
+      'Content-Type': 'application/pdf'
     }
   })  .then((response) => {
     if (!response.ok) {
