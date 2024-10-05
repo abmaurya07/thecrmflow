@@ -49,6 +49,7 @@
     "next-themes": "^0.2.1",
     "nextjs-toploader": "^1.4.2",
     "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.1",
     "postcss": "^8.4.33",
     "razorpay": "^2.9.4",
     "react": "18.2.0",

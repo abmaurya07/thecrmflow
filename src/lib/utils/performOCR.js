@@ -1,19 +1,15 @@
 import { PDFDocument } from 'pdf-lib';
 import Tesseract from 'tesseract.js';
+const pdf = require('pdf-parse');
 
-async function extractTextFromPDF(pdfBuffer) {
-    const pdfDoc = await PDFDocument.load(pdfBuffer);
-    const pages = pdfDoc.getPages();
-    const textResults = [];
-
-    for (const page of pages) {
-        const image = await page.render(); // Get image representation
-        const text = await Tesseract.recognize(image, 'eng');
-        textResults.push(text.data.text);
+async function extractTextFromPDF(buffer) {
+    try {
+      const data = await pdf(buffer);
+      return data.text; // Extracted text from the PDF
+    } catch (error) {
+      throw new Error(`Failed to extract text from PDF: ${error.message}`);
     }
-
-    return textResults.join('\n');
-}
+  }
 
 async function extractTextFromPPT(pptBuffer) {
     // Convert PPT to images (using a library)
