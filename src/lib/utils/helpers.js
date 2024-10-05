@@ -65,7 +65,7 @@ async function downloadMedia(mediaId, mimeType) {
     method: 'GET'
   });  
 
-  console.log('mediaDownloadResponse', mediaDownloadResponse)
+  console.log('mediaDownloadResponse', mediaDownloadResponse);
 
   if (!mediaDownloadResponse.ok) {
     throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
@@ -73,6 +73,15 @@ async function downloadMedia(mediaId, mimeType) {
 
   const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
   console.log('Downloaded media size:', arrayBuffer.byteLength);
+  
+  // Check if the content type is HTML (which might indicate an error page)
+  const contentType = mediaDownloadResponse.headers.get('content-type');
+  if (contentType && contentType.includes('text/html')) {
+    const text = new TextDecoder().decode(arrayBuffer);
+    console.error('Received HTML instead of PDF:', text.substring(0, 200)); // Log the first 200 characters
+    throw new Error('Received HTML instead of PDF');
+  }
+
   return Buffer.from(arrayBuffer);
 }
 
@@ -99,10 +108,12 @@ async function extractTextFromPDF(pdfBuffer) {
     const pdf = await import('pdf-parse');
     try {
       const data = await pdf.default(pdfBuffer);
+      console.log('PDF parsing successful. Text length:', data.text.length);
       return data.text;
     } catch (error) {
       console.error('Error extracting text from PDF:', error);
       if (error.message === 'Invalid PDF structure') {
+        console.error('PDF buffer (first 100 bytes):', pdfBuffer.slice(0, 100).toString('hex'));
         return 'The provided PDF file appears to be invalid or corrupted. Please try uploading a different PDF file.';
       } else {
         return 'An error occurred while processing the PDF. Please try again later.';

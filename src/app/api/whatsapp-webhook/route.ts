@@ -64,13 +64,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 throw new Error('Unsupported file type');
               }
 
-              const AIResponse = await AIHelper(extractedText);
-              console.log('AI response from document content:', AIResponse);
-
-              await sendWhatsAppMessage(message.from, `AI Response based on your document: ${AIResponse}`);
+              if (extractedText.startsWith('The provided PDF file appears to be invalid') || 
+                  extractedText.startsWith('An error occurred while processing the PDF')) {
+                await sendWhatsAppMessage(message.from, extractedText);
+              } else {
+                const AIResponse = await AIHelper(extractedText);
+                console.log('AI response from document content:', AIResponse);
+                await sendWhatsAppMessage(message.from, `AI Response based on your document: ${AIResponse}`);
+              }
             } catch (err) {
               console.error('Error handling media:', err);
-              await sendWhatsAppMessage(message.from, 'Failed to process the document. Please try again later.');
+              if (err.message === 'Received HTML instead of PDF') {
+                await sendWhatsAppMessage(message.from, 'There was an issue downloading your document. Please try uploading it again.');
+              } else {
+                await sendWhatsAppMessage(message.from, 'Failed to process the document. Please try again later.');
+              }
             }
           } else {
             await sendWhatsAppMessage(message.from, 'Failed to retrieve document. Please resend.');
