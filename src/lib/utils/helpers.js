@@ -3,7 +3,7 @@
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import pdf from 'pdf-parse';
-import pptxExtract from 'pptx-extract'; // You'll need to install this package
+// import pptxExtract from 'pptx-extract'; // You'll need to install this package
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -105,7 +105,7 @@ async function extractTextFromPDF(pdfBuffer) {
 // Function to extract text from PPT
 async function extractTextFromPPT(pptBuffer) {
   try {
-    const text = await pptxExtract(pptBuffer);
+    const text = 'PPT File'
     return text.join('\n');
   } catch (error) {
     console.error('Error extracting text from PPT:', error);
