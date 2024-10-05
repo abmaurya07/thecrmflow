@@ -34,7 +34,7 @@ async function sendWhatsAppMessage(to, message) {
 }
 
 // Function to download media file from WhatsApp using the media ID
-async function downloadMedia(mediaId, mediaType) {
+async function downloadMedia(mediaId, mimeType) {
   
   // First, get the media URL
   const mediaUrlEndpoint = `https://graph.facebook.com/v17.0/${mediaId}`;
@@ -54,24 +54,26 @@ async function downloadMedia(mediaId, mediaType) {
 
   console.log('mediaUrlData', mediaUrlData)
   
+  // Set the correct Content-Type based on the mimeType
+  const headers = {
+    'Authorization': `Bearer ${whatsappToken}`,
+    'Content-Type': mimeType || 'application/octet-stream'
+  };
+
   // Then, download the actual media using the URL
   const mediaDownloadResponse = await fetch(mediaUrlData.url, {
-    headers: {
-      'Authorization': `Bearer ${whatsappToken}`,
-      'Content-Type': 'application/pdf'
-    },
-    responseType: 'arraybuffer',
-  })  
+    headers: headers,
+    method: 'GET'
+  });  
 
-  
-console.log('mediaDownloadResponse', mediaDownloadResponse)
+  console.log('mediaDownloadResponse', mediaDownloadResponse)
 
-const buffer = await response.arrayBuffer();
-require('fs').writeFileSync('downloaded_media', Buffer.from(buffer));
+  if (!mediaDownloadResponse.ok) {
+    throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
+  }
 
-return 'Thank You!'
-
-
+  const buffer = await mediaDownloadResponse.arrayBuffer();
+  return Buffer.from(buffer);
 }
 
 // Function to process the file (e.g., extract data with Llama AI)
