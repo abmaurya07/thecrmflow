@@ -34,8 +34,6 @@ async function sendWhatsAppMessage(to, message) {
 
 // Function to download media file from WhatsApp using the media ID
 async function downloadMedia(mediaId, mimeType) {
-  
-  // First, get the media URL
   const mediaUrlEndpoint = `https://graph.facebook.com/v17.0/${mediaId}`;
   const mediaUrlResponse = await fetch(mediaUrlEndpoint, {
     headers: {
@@ -43,49 +41,69 @@ async function downloadMedia(mediaId, mimeType) {
     }
   });
 
-  console.log('mediaUrlResponse', mediaUrlResponse)
+  console.log('mediaUrlResponse', mediaUrlResponse);
   
   if (!mediaUrlResponse.ok) {
     throw new Error(`Failed to get media URL: ${mediaUrlResponse.statusText}`);
   }
   
   const mediaUrlData = await mediaUrlResponse.json();
+  console.log('mediaUrlData', mediaUrlData);
 
-  console.log('mediaUrlData', mediaUrlData)
-  
   // Set the correct Content-Type based on the mimeType
   const headers = {
     'Authorization': `Bearer ${whatsappToken}`,
     'Content-Type': mimeType || 'application/octet-stream'
   };
 
-  // Then, download the actual media using the URL
-  const mediaDownloadResponse = await fetch(mediaUrlData.url, {
-    headers: headers,
-    method: 'GET'
-  });  
+  // Function to attempt download with redirect handling
+  async function attemptDownload(url, attempts = 3) {
+    while (attempts > 0) {
+      const response = await fetch(url, {
+        headers: headers,
+        method: 'GET',
+        redirect: 'follow', // Allow redirects
+      });
 
-  console.log('mediaDownloadResponse', mediaDownloadResponse);
+      console.log(`Download attempt response:`, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
 
-  if (!mediaDownloadResponse.ok) {
-    throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/pdf')) {
+          return await response.arrayBuffer();
+        } else {
+          console.error(`Unexpected content type: ${contentType}`);
+          const text = await response.text();
+          console.error(`Response body (first 500 chars):`, text.substring(0, 500));
+          throw new Error(`Unexpected content type: ${contentType}`);
+        }
+      } else if (response.status === 302 || response.status === 301) {
+        url = response.headers.get('location');
+        console.log(`Following redirect to: ${url}`);
+      } else {
+        attempts--;
+        if (attempts === 0) {
+          throw new Error(`Failed to download media after multiple attempts: ${response.statusText}`);
+        }
+      }
+    }
   }
 
-  const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
-  console.log('Downloaded media size:', arrayBuffer.byteLength);
-  
-  // Check if the content type is HTML (which might indicate an error page)
-  const contentType = mediaDownloadResponse.headers.get('content-type');
-  if (contentType && contentType.includes('text/html')) {
-    const text = new TextDecoder().decode(arrayBuffer);
-    console.error('Received HTML instead of PDF:', text.substring(0, 200)); // Log the first 200 characters
-    throw new Error('Received HTML instead of PDF');
+  try {
+    const arrayBuffer = await attemptDownload(mediaUrlData.url);
+    console.log('Downloaded media size:', arrayBuffer.byteLength);
+    return Buffer.from(arrayBuffer);
+  } catch (error) {
+    console.error('Error downloading media:', error);
+    throw error;
   }
-
-  return Buffer.from(arrayBuffer);
 }
 
-// Function to process the file (e.g., extract data with Llama AI)
+// Function to process the file (e.g., extract data with Llama AI)  
 async function processFileWithLlamaAI(fileUrl) {
   // Simulating file processing using Llama AI or any other AI service
   const response = await fetch('https://llama.ai/your-api-endpoint', {
