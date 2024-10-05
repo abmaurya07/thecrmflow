@@ -78,7 +78,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               const mediaBuffer = await downloadMedia(mediaId, mediaType);  
               console.log('run after download media function')
 
-              console.log('Media buffer:', mediaBuffer);
+              // console.log('Media buffer:', mediaBuffer);
 
                // Get the mime type for the document
                console.log('message.document', message.document);
