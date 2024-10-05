@@ -41,12 +41,16 @@ async function downloadMedia(mediaId, mediaType) {
       'Authorization': `Bearer ${whatsappToken}`
     }
   });
+
+  console.log('mediaUrlResponse', mediaUrlResponse)
   
   if (!mediaUrlResponse.ok) {
     throw new Error(`Failed to get media URL: ${mediaUrlResponse.statusText}`);
   }
   
   const mediaUrlData = await mediaUrlResponse.json();
+
+  console.log('mediaUrlData', mediaUrlData)
   
   // Then, download the actual media using the URL
   const mediaDownloadResponse = await fetch(mediaUrlData.url, {
@@ -62,7 +66,8 @@ async function downloadMedia(mediaId, mediaType) {
 console.log('mediaDownloadResponse', mediaDownloadResponse)
   if(mediaType === 'pdf'){
     const text = await mediaDownloadResponse.text();
-    return text;
+    // return text;
+    return 'thank you!'
   }
 
   // Convert the response to a buffer
