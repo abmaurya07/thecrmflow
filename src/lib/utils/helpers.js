@@ -57,22 +57,27 @@ async function downloadMedia(mediaId, mediaType) {
     headers: {
       'Authorization': `Bearer ${whatsappToken}`
     }
-  });
-  
-  if (!mediaDownloadResponse.ok) {
-    throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
-  }
+  })  .then((response) => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.arrayBuffer();  // This converts the body of the response
+  })
+  .then((buffer) => {
+    // Now you have the media as an ArrayBuffer
+    // You can convert this buffer to a Blob or other formats
+    console.log(buffer);
+  })
+  .catch((error) => {
+    console.error('There has been a problem with your fetch operation:', error);
+  })
+
   
 console.log('mediaDownloadResponse', mediaDownloadResponse)
-  if(mediaType === 'pdf'){
-    const text = await mediaDownloadResponse.text();
-    // return text;
-    return 'thank you!'
-  }
 
-  // Convert the response to a buffer
-  // const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
-  // return Buffer.from(arrayBuffer);
+return 'Thank You!'
+
+
 }
 
 // Function to process the file (e.g., extract data with Llama AI)
