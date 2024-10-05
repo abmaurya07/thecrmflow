@@ -74,10 +74,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               }
             } catch (err) {
               console.error('Error handling media:', err);
-              if (err.message.includes('Unexpected content type')) {
+              if (err.message.includes('Authentication error')) {
+                await sendWhatsAppMessage(message.from, 'There was an authentication issue while processing your document. Please try again later or contact support.');
+              } else if (err.message.includes('Unexpected content type')) {
                 await sendWhatsAppMessage(message.from, 'There was an issue with the format of your document. Please try uploading it again as a PDF.');
               } else if (err.message.includes('Failed to download media')) {
                 await sendWhatsAppMessage(message.from, 'There was an issue downloading your document. Please try uploading it again.');
+              } else if (err.message.includes('Media file size too big')) {
+                await sendWhatsAppMessage(message.from, 'The file you sent is too large. Please send a file smaller than 100MB.');
               } else {
                 await sendWhatsAppMessage(message.from, 'Failed to process the document. Please try again later.');
               }

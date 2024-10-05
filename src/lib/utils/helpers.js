@@ -10,6 +10,33 @@ export function cn(...inputs) {
 
 const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN;  // WhatsApp API Token
 const phoneNumberId = process.env.PHONE_NUMBER_ID; // Your WhatsApp Phone Number ID
+// const appId = process.env.WHATSAPP_APP_ID;
+// const appSecret = process.env.WHATSAPP_APP_SECRET; // This should be different from WHATSAPP_VERIFY_TOKEN
+
+// Function to refresh the WhatsApp access token
+// async function refreshAccessToken() {
+//   const url = `https://graph.facebook.com/oauth/access_token`;
+//   const response = await fetch(url, {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     query: {
+//       grant_type: 'fb_exchange_token',
+//       client_id: appId,
+//       client_secret: appSecret,
+//       fb_exchange_token: whatsappToken,
+//     },
+//   });
+
+//   if (!response.ok) {
+//     throw new Error('Failed to refresh access token');
+//   }
+
+//   const data = await response.json();
+//   return data.access_token;
+// }
+
 // Function to send a WhatsApp message back to the user
 async function sendWhatsAppMessage(to, message) {
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
@@ -28,79 +55,66 @@ async function sendWhatsAppMessage(to, message) {
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      // Token might be expired, try to refresh
+      const newToken = await refreshAccessToken();
+      // Update the token in the environment (this might require server restart)
+      process.env.WHATSAPP_ACCESS_TOKEN = newToken;
+      // Retry the message send with the new token
+      return sendWhatsAppMessage(to, message);
+    }
     console.error('Failed to send message', await response.text());
   }
 }
 
 // Function to download media file from WhatsApp using the media ID
 async function downloadMedia(mediaId, mimeType) {
-  const mediaUrlEndpoint = `https://graph.facebook.com/v17.0/${mediaId}`;
+  // Step 1: Retrieve the media URL
+  const mediaUrlEndpoint = `https://graph.facebook.com/v21.0/${mediaId}`;
   const mediaUrlResponse = await fetch(mediaUrlEndpoint, {
     headers: {
       'Authorization': `Bearer ${whatsappToken}`
     }
   });
 
-  console.log('mediaUrlResponse', mediaUrlResponse);
-  
+  console.log('Media URL Response:', mediaUrlResponse);
+
   if (!mediaUrlResponse.ok) {
+    if (mediaUrlResponse.status === 401) {
+      // const newToken = await refreshAccessToken();
+      // process.env.WHATSAPP_ACCESS_TOKEN = newToken;
+      return downloadMedia(mediaId, mimeType);
+    }
     throw new Error(`Failed to get media URL: ${mediaUrlResponse.statusText}`);
   }
-  
+
   const mediaUrlData = await mediaUrlResponse.json();
-  console.log('mediaUrlData', mediaUrlData);
+  console.log('Media URL Data:', mediaUrlData);
 
-  // Set the correct Content-Type based on the mimeType
-  const headers = {
-    'Authorization': `Bearer ${whatsappToken}`,
-    'Content-Type': mimeType || 'application/octet-stream'
-  };
+  // Step 2: Download the media using the retrieved URL
+  const mediaDownloadResponse = await fetch(mediaUrlData.url, {
+    headers: {
+      'Authorization': `Bearer ${whatsappToken}`
+    },
+    method: 'GET'
+  });
 
-  // Function to attempt download with redirect handling
-  async function attemptDownload(url, attempts = 3) {
-    while (attempts > 0) {
-      const response = await fetch(url, {
-        headers: headers,
-        method: 'GET',
-        redirect: 'follow', // Allow redirects
-      });
+  console.log('Media Download Response:', mediaDownloadResponse);
 
-      console.log(`Download attempt response:`, {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-      });
-
-      if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/pdf')) {
-          return await response.arrayBuffer();
-        } else {
-          console.error(`Unexpected content type: ${contentType}`);
-          const text = await response.text();
-          console.error(`Response body (first 500 chars):`, text.substring(0, 500));
-          throw new Error(`Unexpected content type: ${contentType}`);
-        }
-      } else if (response.status === 302 || response.status === 301) {
-        url = response.headers.get('location');
-        console.log(`Following redirect to: ${url}`);
-      } else {
-        attempts--;
-        if (attempts === 0) {
-          throw new Error(`Failed to download media after multiple attempts: ${response.statusText}`);
-        }
-      }
-    }
+  if (!mediaDownloadResponse.ok) {
+    throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
   }
 
-  try {
-    const arrayBuffer = await attemptDownload(mediaUrlData.url);
-    console.log('Downloaded media size:', arrayBuffer.byteLength);
-    return Buffer.from(arrayBuffer);
-  } catch (error) {
-    console.error('Error downloading media:', error);
-    throw error;
+  const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
+  console.log('Downloaded media size:', arrayBuffer.byteLength);
+
+  // Check file size
+  const maxSize = 100 * 1024 * 1024; // 100MB
+  if (arrayBuffer.byteLength > maxSize) {
+    throw new Error('Media file size too big. Max file size supported: 100MB.');
   }
+
+  return Buffer.from(arrayBuffer);
 }
 
 // Function to process the file (e.g., extract data with Llama AI)  
