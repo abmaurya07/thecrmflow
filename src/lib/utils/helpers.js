@@ -2,7 +2,7 @@
 
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import pdf from 'pdf-parse';
+const pdf = require('pdf-parse')
 // import pptxExtract from 'pptx-extract'; // You'll need to install this package
 
 export function cn(...inputs) {
