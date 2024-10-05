@@ -71,8 +71,9 @@ async function downloadMedia(mediaId, mimeType) {
     throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
   }
 
-  const buffer = await mediaDownloadResponse.arrayBuffer();
-  return Buffer.from(buffer);
+  const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
+  console.log('Downloaded media size:', arrayBuffer.byteLength);
+  return Buffer.from(arrayBuffer);
 }
 
 // Function to process the file (e.g., extract data with Llama AI)
@@ -92,6 +93,7 @@ async function processFileWithLlamaAI(fileUrl) {
 
 // Function to extract text from PDF
 async function extractTextFromPDF(pdfBuffer) {
+  console.log('PDF buffer size:', pdfBuffer.length);
   if (typeof window === 'undefined') {
     // Server-side code
     const pdf = await import('pdf-parse');
@@ -100,7 +102,11 @@ async function extractTextFromPDF(pdfBuffer) {
       return data.text;
     } catch (error) {
       console.error('Error extracting text from PDF:', error);
-      throw error;
+      if (error.message === 'Invalid PDF structure') {
+        return 'The provided PDF file appears to be invalid or corrupted. Please try uploading a different PDF file.';
+      } else {
+        return 'An error occurred while processing the PDF. Please try again later.';
+      }
     }
   } else {
     // Client-side code
