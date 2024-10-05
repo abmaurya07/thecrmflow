@@ -2,6 +2,8 @@
 
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import pdf from 'pdf-parse';
+import pptxExtract from 'pptx-extract'; // You'll need to install this package
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -72,9 +74,6 @@ return 'Thank You!'
 
 }
 
-
-
-
 // Function to process the file (e.g., extract data with Llama AI)
 async function processFileWithLlamaAI(fileUrl) {
   // Simulating file processing using Llama AI or any other AI service
@@ -90,9 +89,32 @@ async function processFileWithLlamaAI(fileUrl) {
   return data.extractedInfo;  // Return extracted information
 }
 
+// Function to extract text from PDF
+async function extractTextFromPDF(pdfBuffer) {
+  try {
+    const data = await pdf(pdfBuffer);
+    return data.text;
+  } catch (error) {
+    console.error('Error extracting text from PDF:', error);
+    throw error;
+  }
+}
+
+// Function to extract text from PPT
+async function extractTextFromPPT(pptBuffer) {
+  try {
+    const text = await pptxExtract(pptBuffer);
+    return text.join('\n');
+  } catch (error) {
+    console.error('Error extracting text from PPT:', error);
+    throw error;
+  }
+}
+
 export {
   downloadMedia,
   sendWhatsAppMessage,
-  processFileWithLlamaAI
-
+  processFileWithLlamaAI,
+  extractTextFromPDF,
+  extractTextFromPPT
 }

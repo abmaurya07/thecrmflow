@@ -1,15 +1,8 @@
-import { downloadMedia, sendWhatsAppMessage } from '@/lib/utils/helpers';
+import { downloadMedia, sendWhatsAppMessage, extractTextFromPDF, extractTextFromPPT } from '@/lib/utils/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 import { main as AIHelper } from '@/lib/utils/groq';
-import extractText from '@/lib/utils/performOCR';  // Assuming this function handles OCR extraction from media
 
 const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN as string;
-
-
-
-
-
-
 
 // Handle GET request for webhook verification
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -45,70 +38,46 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           const userMessage = message.text.body;
           console.log('Text message received:', userMessage);
 
-          // Generate AI Response for text
           const AIResponse = await AIHelper(userMessage);
           console.log('AI response:', AIResponse);
 
-          // Send a response to the user
-          await sendWhatsAppMessage(message.from, `Thank you for your message! AI Response: ${AIResponse}`);
+          await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse}`);
         }
 
-        // Handle media (image, document, etc.)
-        if (message.type === 'image' || message.type === 'document') {
-          const mediaId = message[message.type]?.id;  // Get media ID
-
+        // Handle media (PDF, PPT, etc.)
+        if (message.type === 'document') {
+          const mediaId = message.document?.id;
           console.log('Media ID:', mediaId);
           
           if (mediaId) {
             try {
-
               const mimeType = message.document?.mime_type;
-              let mediaType: string;
+              let extractedText: string;
 
-              // Determine media type based on mime type
+              const mediaBuffer = await downloadMedia(mediaId, mimeType);
+
               if (mimeType === 'application/pdf') {
-                mediaType = 'pdf';
+                extractedText = await extractTextFromPDF(mediaBuffer);
               } else if (mimeType === 'application/vnd.ms-powerpoint' || mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-                mediaType = 'ppt';
+                extractedText = await extractTextFromPPT(mediaBuffer);
               } else {
-                mediaType = 'unknown'; // Handle unknown types if necessary
+                throw new Error('Unsupported file type');
               }
-              // Download media from WhatsApp
-              console.log('run before download media function')
-              const mediaBuffer = await downloadMedia(mediaId, mediaType);  
-              console.log('run after download media function')
 
-              // console.log('Media buffer:', mediaBuffer);
+              const AIResponse = await AIHelper(extractedText);
+              console.log('AI response from document content:', AIResponse);
 
-               // Get the mime type for the document
-               console.log('message.document', message.document);
-              
-
-              // Perform OCR on the downloaded media
-              // const ocrResult = await extractText(mediaBuffer, mediaType);
-              // console.log('OCR Result:', ocrResult);
-              let AIResponse : string
-              if(mediaType === 'pdf'){
-                
-                 AIResponse = await AIHelper(mediaBuffer);
-              }
-              // Generate AI Response for media content
-              console.log('AI response from OCR content:', AIResponse);
-
-              // Send a response to the user
-              await sendWhatsAppMessage(message.from, `We received your media! AI Response: ${AIResponse}`);
+              await sendWhatsAppMessage(message.from, `AI Response based on your document: ${AIResponse}`);
             } catch (err) {
               console.error('Error handling media:', err);
-              await sendWhatsAppMessage(message.from, 'Failed to process the media. Please try again later.');
+              await sendWhatsAppMessage(message.from, 'Failed to process the document. Please try again later.');
             }
           } else {
-            // Handle missing media ID
-            await sendWhatsAppMessage(message.from, 'Failed to retrieve media. Please resend.');
+            await sendWhatsAppMessage(message.from, 'Failed to retrieve document. Please resend.');
           }
         }
       } catch (err) {
         console.error('Error processing message:', err);
-        // Send a response to the user in case of any error
         await sendWhatsAppMessage(message.from, 'An error occurred. Please try again later.');
       }
     }
