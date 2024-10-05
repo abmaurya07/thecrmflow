@@ -71,6 +71,7 @@ async function sendWhatsAppMessage(to, message) {
 async function downloadMedia(mediaId, mimeType) {
   // Step 1: Retrieve the media URL
   const mediaUrlEndpoint = `https://graph.facebook.com/v21.0/${mediaId}`;
+  
   const mediaUrlResponse = await fetch(mediaUrlEndpoint, {
     headers: {
       'Authorization': `Bearer ${whatsappToken}`
@@ -90,7 +91,7 @@ async function downloadMedia(mediaId, mimeType) {
 
   const mediaUrlData = await mediaUrlResponse.json();
   console.log('Media URL Data:', mediaUrlData);
-
+console.log('whatsapp Token', whatsappToken)
   // Step 2: Download the media using the retrieved URL
   const mediaDownloadResponse = await fetch(mediaUrlData.url, {
     headers: {
