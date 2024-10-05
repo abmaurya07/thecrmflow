@@ -109,7 +109,7 @@ async function processFileWithLlamaAI(fileUrl) {
   }
 }
 
-// Function to extract text from PDF
+// Function to extract text from PDF using pdf parse
 async function extractTextFromPDF(pdfBuffer) {
   console.log('PDF buffer size:', pdfBuffer.length);
   if (typeof window === 'undefined') {
