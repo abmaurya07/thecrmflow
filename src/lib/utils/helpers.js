@@ -2,6 +2,7 @@
 
 import { ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import axios from 'axios';
 // import pptxExtract from 'pptx-extract'; // You'll need to install this package
 
 export function cn(...inputs) {
@@ -41,103 +42,77 @@ const phoneNumberId = process.env.PHONE_NUMBER_ID; // Your WhatsApp Phone Number
 async function sendWhatsAppMessage(to, message) {
   const url = `https://graph.facebook.com/v17.0/${phoneNumberId}/messages`;
   
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${whatsappToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
+  try {
+    const response = await axios.post(url, {
       messaging_product: 'whatsapp',
       to,
       text: { body: message }
-    })
-  });
+    }, {
+      headers: {
+        'Authorization': `Bearer ${whatsappToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-  if (!response.ok) {
-    if (response.status === 401) {
-      // Token might be expired, try to refresh
-      const newToken = await refreshAccessToken();
-      // Update the token in the environment (this might require server restart)
-      process.env.WHATSAPP_ACCESS_TOKEN = newToken;
-      // Retry the message send with the new token
-      return sendWhatsAppMessage(to, message);
-    }
-    console.error('Failed to send message', await response.text());
+    return response.data;
+  } catch (error) {
+    console.error('Failed to send message', error.response?.data || error.message);
+    throw error;
   }
 }
 
 // Function to download media file from WhatsApp using the media ID
 async function downloadMedia(mediaId, mimeType) {
-  // Step 1: Retrieve the media URL
   const mediaUrlEndpoint = `https://graph.facebook.com/v21.0/${mediaId}`;
   
-  const mediaUrlResponse = await fetch(mediaUrlEndpoint, {
-    headers: {
-      'Authorization': `Bearer ${whatsappToken}`
+  try {
+    const mediaUrlResponse = await axios.get(mediaUrlEndpoint, {
+      headers: {
+        'Authorization': `Bearer ${whatsappToken}`
+      }
+    });
+
+    console.log('Media URL Response:', mediaUrlResponse.data);
+
+    const mediaDownloadResponse = await axios.get(mediaUrlResponse.data.url, {
+      headers: {
+        'Authorization': `Bearer ${whatsappToken}`
+      },
+      responseType: 'arraybuffer'
+    });
+
+    console.log('Media Download Response:', mediaDownloadResponse.status);
+
+    const arrayBuffer = mediaDownloadResponse.data;
+    console.log('Downloaded media size:', arrayBuffer.byteLength);
+
+    const maxSize = 100 * 1024 * 1024; // 100MB
+    if (arrayBuffer.byteLength > maxSize) {
+      throw new Error('Media file size too big. Max file size supported: 100MB.');
     }
-  });
 
-  console.log('Media URL Response:', mediaUrlResponse);
-
-  if (!mediaUrlResponse.ok) {
-    if (mediaUrlResponse.status === 401) {
-      // const newToken = await refreshAccessToken();
-      // process.env.WHATSAPP_ACCESS_TOKEN = newToken;
-      return downloadMedia(mediaId, mimeType);
-    }
-    throw new Error(`Failed to get media URL: ${mediaUrlResponse.statusText}`);
+    return Buffer.from(arrayBuffer);
+  } catch (error) {
+    console.error('Error downloading media:', error.response?.data || error.message);
+    throw error;
   }
-
-  const mediaUrlData = await mediaUrlResponse.json();
-  console.log('Media URL Data:', mediaUrlData);
-console.log('whatsapp Token', whatsappToken)
-  // Step 2: Download the media using the retrieved URL
-  const mediaDownloadResponse = await fetch(mediaUrlData.url, {
-    headers: {
-      'Authorization': `Bearer ${whatsappToken}`
-    },
-    method: 'GET'
-  });
-
-  console.log('Media Download Response:', mediaDownloadResponse);
-
-  if (!mediaDownloadResponse.ok) {
-    throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
-  }
-
-  const arrayBuffer = await mediaDownloadResponse.arrayBuffer();
-  console.log('Downloaded media size:', arrayBuffer.byteLength);
-
-  // Check file size
-  const maxSize = 100 * 1024 * 1024; // 100MB
-  if (arrayBuffer.byteLength > maxSize) {
-    throw new Error('Media file size too big. Max file size supported: 100MB.');
-  }
-
-  return Buffer.from(arrayBuffer);
 }
 
 // Function to process the file (e.g., extract data with Llama AI)  
 async function processFileWithLlamaAI(fileUrl) {
-  // Simulating file processing using Llama AI or any other AI service
-  const response = await fetch('https://llama.ai/your-api-endpoint', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ fileUrl })
-  });
-
-  const data  = await response.json();
-  return data.extractedInfo;  // Return extracted information
+  try {
+    const response = await axios.post('https://llama.ai/your-api-endpoint', { fileUrl });
+    return response.data.extractedInfo;
+  } catch (error) {
+    console.error('Error processing file with Llama AI:', error.response?.data || error.message);
+    throw error;
+  }
 }
 
 // Function to extract text from PDF
 async function extractTextFromPDF(pdfBuffer) {
   console.log('PDF buffer size:', pdfBuffer.length);
   if (typeof window === 'undefined') {
-    // Server-side code
     const pdf = await import('pdf-parse');
     try {
       const data = await pdf.default(pdfBuffer);
@@ -153,7 +128,6 @@ async function extractTextFromPDF(pdfBuffer) {
       }
     }
   } else {
-    // Client-side code
     console.error('PDF extraction is not supported in the browser');
     return 'PDF extraction is not supported in the browser';
   }
@@ -162,8 +136,8 @@ async function extractTextFromPDF(pdfBuffer) {
 // Function to extract text from PPT
 async function extractTextFromPPT(pptBuffer) {
   try {
-    const text = 'PPT File'
-    return text.join('\n');
+    const text = 'PPT File';
+    return text;
   } catch (error) {
     console.error('Error extracting text from PPT:', error);
     throw error;
