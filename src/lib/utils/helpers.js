@@ -59,7 +59,7 @@ async function downloadMedia(mediaId, mediaType) {
     throw new Error(`Failed to download media: ${mediaDownloadResponse.statusText}`);
   }
   
-
+console.log('mediaDownloadResponse', mediaDownloadResponse)
   if(mediaType === 'pdf'){
     const text = await mediaDownloadResponse.text();
     return text;
