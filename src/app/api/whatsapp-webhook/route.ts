@@ -42,7 +42,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           console.log('AI response:', AIResponse);
           const parsedJson = extractAndParseJson(AIResponse)
 
-          await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse} Parsed Json: ${parsedJson ? parsedJson : 'error'}`);
+          await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse} Parsed Json: ${parsedJson ? parsedJson?.company : 'error'}`);
   await addItemToMonday()
 
         }
