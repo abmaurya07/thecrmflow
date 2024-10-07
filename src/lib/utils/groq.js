@@ -25,6 +25,9 @@ export async function getGroqChatCompletion(userInput) {
         
         Generate your response as a JSON list. Items in json should be business, contact, email, and phone.
         Only return JSON.
+
+        if you can't find the required information then communicate with the user. 
+
         `,
       },
       {
