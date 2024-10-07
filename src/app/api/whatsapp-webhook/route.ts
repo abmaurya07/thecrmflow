@@ -44,6 +44,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
           await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse} Parsed Json: ${parsedJson ? parsedJson?.company : 'error'}`);
 
+          console.log('parsedJSON', parsedJson)
+
+
           if(parsedJson){
             const {name:itemName, company, phone, email } = parsedJson;
 
@@ -86,6 +89,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 console.log('AI response from document content:', AIResponse);
                 await sendWhatsAppMessage(message.from, `AI Response based on your document: ${AIResponse}`);
                 const parsedJson = extractAndParseJson(AIResponse)
+                console.log('parsedJSON', parsedJson)
 
                 if(parsedJson){
                   const {name:itemName, company, phone, email } = parsedJson;

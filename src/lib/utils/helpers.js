@@ -188,7 +188,7 @@ async function addItemToMonday({boardId = '1922012467', itemName, company, phone
     });
 
     if (response.data.errors) {
-      console.log('Error adding item to Monday.com:', response.data.errors);
+      console.log('Error adding item to Monday.com:', response.data.errors[0]);
       throw new Error(response.data); // Throw an error
     }
 
