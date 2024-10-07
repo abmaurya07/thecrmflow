@@ -42,13 +42,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           console.log('AI response:', AIResponse);
           const parsedJson = extractAndParseJson(AIResponse)
 
-          await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse} Parsed Json: ${parsedJson ? parsedJson?.company : 'error'}`);
+          await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse}`);
 
           console.log('parsedJSON', parsedJson)
 
 
           if(parsedJson){
-            const {name:itemName, company, phone, email } = parsedJson;
+            const {contact:itemName, business:company, phone, email } = parsedJson;
 
             await addItemToMonday({
               itemName,
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 console.log('parsedJSON', parsedJson)
 
                 if(parsedJson){
-                  const {name:itemName, company, phone, email } = parsedJson;
+                  const {name:itemName, business:company, phone, email } = parsedJson;
       
                   await addItemToMonday({
                     itemName,
