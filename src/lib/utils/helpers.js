@@ -150,6 +150,7 @@ async function extractTextFromPPT(pptBuffer) {
 
 
 async function addItemToMonday({boardId = '1922012467', itemName, company, phone, email}) {
+  console.log('itemName:', itemName, 'company:', company, 'phone:', phone, 'email:', email);
   // Monday.com API configuration
   const API_KEY = process.env.MONDAY_API_KEY;
   const API_URL = 'https://api.monday.com/v2';
