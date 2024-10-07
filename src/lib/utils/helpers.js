@@ -168,26 +168,25 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
   });
   
   // GraphQL mutation query
-  const query = `mutation create_item($boardId: Int!, $itemName: String!, $columnValues: JSON!) {
+  const query = `mutation create_item {
     create_item (
-      board_id: $boardId,
-      item_name: $itemName,
-      column_values: $columnValues
+      board_id: ${boardId},
+      item_name: ${itemName},
+      column_values: ${columnValues}
     ) {
       id
     }
   }`;
 
-  const variables = {
-    boardId: parseInt(boardId),
-    itemName: itemName,
-    columnValues: columnValues
-  };
+  // const variables = {
+  //   boardId: parseInt(boardId),
+  //   itemName: itemName,
+  //   columnValues: columnValues
+  // };
 
   try {
     const response = await axios.post(API_URL, {
-      query: query,
-      variables: variables
+      query: query
     }, {
       headers: headers
     });
