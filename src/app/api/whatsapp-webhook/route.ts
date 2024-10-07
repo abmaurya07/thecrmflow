@@ -48,7 +48,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
 
           if(parsedJson){
-            const {contact:itemName, business:company, phone, email } = parsedJson;
+            const {contact:itemName, business:company, phone, email } = parsedJson[0];
 
             await addItemToMonday({
               itemName,
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 console.log('parsedJSON', parsedJson)
 
                 if(parsedJson){
-                  const {name:itemName, business:company, phone, email } = parsedJson;
+                  const {name:itemName, business:company, phone, email } = parsedJson[0];
       
                   await addItemToMonday({
                     itemName,
