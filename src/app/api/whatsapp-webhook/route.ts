@@ -1,4 +1,4 @@
-import { downloadMedia, sendWhatsAppMessage, extractTextFromPDF, extractTextFromPPT, addItemToMonday } from '@/lib/utils/helpers';
+import { downloadMedia, sendWhatsAppMessage, extractTextFromPDF, extractTextFromPPT, addItemToMonday, extractAndParseJson } from '@/lib/utils/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 import { main as AIHelper } from '@/lib/utils/groq';
 
@@ -38,11 +38,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         if (message.type === 'text' && message.text) {
           const userMessage = message.text.body;
           console.log('Text message received:', userMessage);
-
           const AIResponse = await AIHelper(userMessage);
           console.log('AI response:', AIResponse);
+          const parsedJson = extractAndParseJson(AIResponse)
 
-          await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse}`);
+          await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse} Parsed Json: ${parsedJson ? parsedJson : 'error'}`);
   await addItemToMonday()
 
         }

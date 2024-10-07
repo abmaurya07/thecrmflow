@@ -160,27 +160,35 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
     'Authorization': API_KEY
   };
   
-  // Prepare column values as an object
-  const columnValues = {
-    company: "Company Name",
-    email: "email@example.com",
-    phone: "+1234567890"
-  };
+  // Prepare column values
+  const columnValues = JSON.stringify({
+    text: itemName,
+    company: { text: "Company Name" },
+    email: { text: "email@example.com" },
+    phone: { text: "+1234567890" }
+  });
   
   // GraphQL mutation query
-  const query = `mutation {
+  const query = `mutation create_item($boardId: Int!, $itemName: String!, $columnValues: JSON!) {
     create_item (
-      board_id: ${boardId}, 
-      item_name: "${itemName}",
-      column_values: ${JSON.stringify(JSON.stringify(columnValues))}
+      board_id: $boardId,
+      item_name: $itemName,
+      column_values: $columnValues
     ) {
       id
     }
   }`;
 
+  const variables = {
+    boardId: parseInt(boardId),
+    itemName: itemName,
+    columnValues: columnValues
+  };
+
   try {
     const response = await axios.post(API_URL, {
-      query: query
+      query: query,
+      variables: variables
     }, {
       headers: headers
     });
@@ -198,6 +206,27 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
 
 
 
+function extractAndParseJson(text) {
+  // Find JSON-like pattern in the text
+  const jsonPattern = /\[(?:[^[\]]*|\[(?:[^[\]]*|\[[^[\]]*\])*\])*\]|\{(?:[^{}]*|\{(?:[^{}]*|\{[^{}]*\})*\})*\}/;
+  const match = text.match(jsonPattern);
+  
+  if (match) {
+      try {
+          // Extract and parse the JSON
+          const jsonStr = match[0];
+          const parsedJson = JSON.parse(jsonStr);
+          return parsedJson;
+      } catch (error) {
+          console.error("Error parsing JSON:", error.message);
+          return null;
+      }
+  } else {
+      console.log("No JSON found in the text");
+      return null;
+  }
+}
+
 
 export {
   downloadMedia,
@@ -205,5 +234,6 @@ export {
   processFileWithLlamaAI,
   extractTextFromPDF,
   extractTextFromPPT,
-  addItemToMonday
+  addItemToMonday,
+  extractAndParseJson
 }
