@@ -162,7 +162,7 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
   
   // Prepare column values
   const columnValues = JSON.stringify({
-    company: 'test company',
+    company: 'testcompany',
     email: 'testemail@hjk.com',
     phone: 545231894
   });
