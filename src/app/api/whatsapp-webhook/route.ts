@@ -43,7 +43,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           const parsedJson = extractAndParseJson(AIResponse)
 
           await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse} Parsed Json: ${parsedJson ? parsedJson?.company : 'error'}`);
-  await addItemToMonday()
+
+          if(parsedJson){
+            const {name:itemName, company, phone, email } = parsedJson;
+
+            await addItemToMonday({
+              itemName,
+              company,
+              phone,
+              email
+            })
+          }
 
         }
 
@@ -75,7 +85,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
                 const AIResponse = await AIHelper(extractedText);
                 console.log('AI response from document content:', AIResponse);
                 await sendWhatsAppMessage(message.from, `AI Response based on your document: ${AIResponse}`);
-  await addItemToMonday()
+                const parsedJson = extractAndParseJson(AIResponse)
+
+                if(parsedJson){
+                  const {name:itemName, company, phone, email } = parsedJson;
+      
+                  await addItemToMonday({
+                    itemName,
+                    company,
+                    phone,
+                    email
+                  })
+                }
 
               }
             } catch (err) {

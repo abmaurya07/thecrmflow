@@ -149,7 +149,7 @@ async function extractTextFromPPT(pptBuffer) {
 //
 
 
-async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
+async function addItemToMonday({boardId = '1922012467', itemName, company, phone, email}) {
   // Monday.com API configuration
   const API_KEY = process.env.MONDAY_API_KEY;
   const API_URL = 'https://api.monday.com/v2';
@@ -160,26 +160,25 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
     'Authorization': API_KEY
   };
   
-  // Prepare column values
+  // Prepare column values as a properly stringified JSON object
   const columnValues = JSON.stringify({
-    company: 'testcompany',
-    email: 'testemail@hjk.com',
-    phone: 545231894
+    lead_company: `${company}`,
+    lead_phone: `${phone}`,
+    lead_email: {email: `${email}`, text: `${email}`, changed_at: Date.now()},
   });
   
-  // GraphQL mutation query
+  // GraphQL mutation query, with column_values as a string
   const query = `
     mutation {
       create_item(
         board_id: ${boardId}, 
         item_name: "${itemName}", 
-        column_values: "${columnValues.replace(/"/g, '\\\\"')}" 
+        column_values: "${columnValues.replace(/"/g, '\\"')}",
       ) {
         id
       }
     }
   `;
-
 
   try {
     const response = await axios.post(API_URL, {
@@ -189,7 +188,8 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
     });
 
     if (response.data.errors) {
-      throw new Error(response.data.errors[0].message);
+      console.log('Error adding item to Monday.com:', response.data.errors);
+      throw new Error(response.data); // Throw an error
     }
 
     return response.data.data.create_item;
