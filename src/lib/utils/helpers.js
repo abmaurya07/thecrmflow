@@ -195,7 +195,6 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
 
 
 
-module.exports = addItemToMonday;
 export {
   downloadMedia,
   sendWhatsAppMessage,
