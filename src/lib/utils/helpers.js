@@ -178,11 +178,6 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
     }
   }`;
 
-  // const variables = {
-  //   boardId: parseInt(boardId),
-  //   itemName: itemName,
-  //   columnValues: columnValues
-  // };
 
   try {
     const response = await axios.post(API_URL, {
