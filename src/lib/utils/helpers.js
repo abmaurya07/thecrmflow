@@ -153,7 +153,8 @@ async function addItemToMonday({boardId = '1922012467', itemName, company, phone
   // Monday.com API configuration
   const API_KEY = process.env.MONDAY_API_KEY;
   const API_URL = 'https://api.monday.com/v2';
-  
+  const cleanPhone = phone.replace(/\D/g, '');
+
   // Headers for the request
   const headers = {
     'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ async function addItemToMonday({boardId = '1922012467', itemName, company, phone
   // Prepare column values as a properly stringified JSON object
   const columnValues = JSON.stringify({
     lead_company: `${company}`,
-    lead_phone: `${phone}`,
+    lead_phone: `${cleanPhone}`,
     lead_email: {email: `${email}`, text: `${email}`, changed_at: Date.now()},
   });
   
