@@ -23,10 +23,10 @@ export async function getGroqChatCompletion(userInput) {
         
         The information provided may come from documents, images, or text. Extract the relevant details with precision.
         
-        Generate your response as a JSON list. Items in json should be business, contact, email, and phone.
-        Only return JSON.
+        And return a JSON array as the result.
+        The JSON must have these fields: business, contact, email, and phone.
 
-        if you can't find the required information then communicate with the user. 
+        If you can't find the required information then communicate with the user. 
 
         `,
       },
