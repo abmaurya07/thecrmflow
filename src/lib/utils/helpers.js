@@ -144,10 +144,63 @@ async function extractTextFromPPT(pptBuffer) {
   }
 }
 
+
+
+//
+
+
+async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
+  // Monday.com API configuration
+  const API_KEY =  process.env.MONDAY_API_KEY;
+  const API_URL = 'https://api.monday.com/v2';
+  
+  // Headers for the request
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': API_KEY
+  };
+  
+  // Prepare column values
+  const columnValuesJson = "{\"company\": \"Company Name\", \"email\": \"email@example.com\", \"phone\": \"+1234567890\"}"
+  
+  // GraphQL mutation query
+  const query = `mutation {
+    create_item (
+      board_id: ${boardId}, 
+      item_name: "${itemName}",
+      column_values: "${columnValuesJson.replace(/"/g, '\\"')}"
+    ) {
+      id
+    }
+  }`;
+
+  try {
+    const response = await axios.post(API_URL, {
+      query: query
+    }, {
+      headers: headers
+    });
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+
+    return response.data.data.create_item;
+  } catch (error) {
+    console.error('Error adding item to Monday.com:', error.message);
+    throw error;
+  }
+}
+
+
+
+
+module.exports = addItemToMonday;
 export {
   downloadMedia,
   sendWhatsAppMessage,
   processFileWithLlamaAI,
   extractTextFromPDF,
-  extractTextFromPPT
+  extractTextFromPPT,
+  addItemToMonday
 }

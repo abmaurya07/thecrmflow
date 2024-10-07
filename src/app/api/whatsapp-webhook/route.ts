@@ -1,4 +1,4 @@
-import { downloadMedia, sendWhatsAppMessage, extractTextFromPDF, extractTextFromPPT } from '@/lib/utils/helpers';
+import { downloadMedia, sendWhatsAppMessage, extractTextFromPDF, extractTextFromPPT, addItemToMonday } from '@/lib/utils/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 import { main as AIHelper } from '@/lib/utils/groq';
 
@@ -23,6 +23,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   // Log the webhook event for debugging
   console.log("Webhook event received:", body);
+
+  await addItemToMonday()
 
   // Check if there's an incoming message from WhatsApp
   if (body.entry && body.entry[0].changes && body.entry[0].changes[0].value) {
