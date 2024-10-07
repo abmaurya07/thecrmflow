@@ -24,7 +24,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // Log the webhook event for debugging
   console.log("Webhook event received:", body);
 
-  await addItemToMonday()
 
   // Check if there's an incoming message from WhatsApp
   if (body.entry && body.entry[0].changes && body.entry[0].changes[0].value) {
@@ -44,6 +43,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           console.log('AI response:', AIResponse);
 
           await sendWhatsAppMessage(message.from, `AI Response: ${AIResponse}`);
+  await addItemToMonday()
+
         }
 
         // Handle media (PDF, PPT, etc.)
@@ -69,10 +70,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               if (extractedText.startsWith('The provided PDF file appears to be invalid') || 
                   extractedText.startsWith('An error occurred while processing the PDF')) {
                 await sendWhatsAppMessage(message.from, extractedText);
+
               } else {
                 const AIResponse = await AIHelper(extractedText);
                 console.log('AI response from document content:', AIResponse);
                 await sendWhatsAppMessage(message.from, `AI Response based on your document: ${AIResponse}`);
+  await addItemToMonday()
+
               }
             } catch (err) {
               console.error('Error handling media:', err);

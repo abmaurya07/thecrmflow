@@ -151,7 +151,7 @@ async function extractTextFromPPT(pptBuffer) {
 
 async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
   // Monday.com API configuration
-  const API_KEY =  process.env.MONDAY_API_KEY;
+  const API_KEY = process.env.MONDAY_API_KEY;
   const API_URL = 'https://api.monday.com/v2';
   
   // Headers for the request
@@ -160,15 +160,19 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
     'Authorization': API_KEY
   };
   
-  // Prepare column values
-  const columnValuesJson = "{\"company\": \"Company Name\", \"email\": \"email@example.com\", \"phone\": \"+1234567890\"}"
+  // Prepare column values as an object
+  const columnValues = {
+    company: "Company Name",
+    email: "email@example.com",
+    phone: "+1234567890"
+  };
   
   // GraphQL mutation query
   const query = `mutation {
     create_item (
       board_id: ${boardId}, 
       item_name: "${itemName}",
-      column_values: "${columnValuesJson.replace(/"/g, '\\"')}"
+      column_values: ${JSON.stringify(JSON.stringify(columnValues))}
     ) {
       id
     }
