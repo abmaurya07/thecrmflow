@@ -168,15 +168,17 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
   });
   
   // GraphQL mutation query
-  const query = `mutation create_item {
-    create_item (
-      board_id: ${boardId},
-      item_name: ${itemName},
-      column_values: ${columnValues}
-    ) {
-      id
+  const query = `
+    mutation {
+      create_item(
+        board_id: ${boardId}, 
+        item_name: "${itemName}", 
+        column_values: "${columnValues.replace(/"/g, '\\\\"')}" 
+      ) {
+        id
+      }
     }
-  }`;
+  `;
 
 
   try {
