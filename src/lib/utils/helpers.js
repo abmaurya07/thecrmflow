@@ -162,10 +162,9 @@ async function addItemToMonday(boardId = '1922012467', itemName = 'Abbk') {
   
   // Prepare column values
   const columnValues = JSON.stringify({
-    text: itemName,
-    company: { text: "Company Name" },
-    email: { text: "email@example.com" },
-    phone: { text: "+1234567890" }
+    company: 'test company',
+    email: 'testemail@hjk.com',
+    phone: 545231894
   });
   
   // GraphQL mutation query
