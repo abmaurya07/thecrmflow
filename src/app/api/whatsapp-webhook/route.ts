@@ -47,16 +47,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           console.log('parsedJSON', parsedJson)
 
 
-          if(parsedJson){
-            const {contact:itemName, business:company, phone, email } = parsedJson[0];
+         parsedJson.forEach(async (data, idx) => {
+             
+          const {contact:itemName, business:company, phone, email } = data;
 
-            await addItemToMonday({
-              itemName,
-              company,
-              phone,
-              email
-            })
-          }
+          await addItemToMonday({
+            itemName,
+            company,
+            phone,
+            email
+          })
+
+         })
+
+          // if(parsedJson){
+          //   const {contact:itemName, business:company, phone, email } = parsedJson[0];
+
+          //   await addItemToMonday({
+          //     itemName,
+          //     company,
+          //     phone,
+          //     email
+          //   })
+          // }
 
         }
 
