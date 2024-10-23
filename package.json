@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@adobe/css-tools": "^4.3.3",
+    "@cashfreepayments/cashfree-sdk": "^0.1.7",
     "@hookform/resolvers": "^3.3.1",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.4",
@@ -37,6 +38,7 @@
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
     "axios": "^1.7.7",
+    "cashfree-pg": "^4.2.3",
     "class-variance-authority": "^0.7.0",
     "client-only": "^0.0.1",
     "clsx": "^2.0.0",
