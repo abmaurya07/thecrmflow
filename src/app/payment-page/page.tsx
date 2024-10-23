@@ -215,7 +215,7 @@ export default function PaymentPage() {
                     <span>Processing...</span>
                   </div>
                 ) : (
-                  'Pay Now'
+                  <span>Pay Now</span>
                 )}
               </button>
 

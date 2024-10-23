@@ -104,7 +104,7 @@ export default function PaymentStatusPage() {
               {status === 'failed' && (
                 <div className="animate-fade-in">
                   <p className="text-xl text-red-600 font-semibold mb-2">Payment Failed</p>
-                  <p className="text-gray-600">We couldn't process your payment</p>
+                  <p className="text-gray-600">We couldn&apos;t process your payment</p>
                 </div>
               )}
             </div>
